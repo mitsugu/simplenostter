@@ -22,8 +22,6 @@ function evaluateXPath(aNode, aExpr) {
 		}
 	}
 
-	const nodeXPath = "";
-
 	function disableTrend() {
 		const styleElement = document.createElement('style');
 		styleElement.textContent = `
@@ -46,34 +44,46 @@ function evaluateXPath(aNode, aExpr) {
 	}
 
 	const expArticle = './div/article';
-	const configRepostandReaction = {
-		childList: true,
-		subtree: true
-	};
-	const callbackRepostandReaction = function(mutationsList, observer) {
-		for (const mutation of mutationsList) {
-			if (mutation.type === "childList") {
-				mutation.addedNodes.forEach(node => {
-					pNode = node.parentNode;
-					if ( pNode.nodeName === "DIV" && pNode.getAttribute("class") === "virtual-scroll-item" ) {
-						let pcnodes = evaluateXPath(pNode, expArticle);
-						if ( 1 < pcnodes.length ) {
-							pNode.setAttribute("style", "display:none;");
+	class MutationObserverManager {
+		static configRepostandReaction = {
+			childList: true
+		};
+		static observer = null;
+
+		static callbackRepostandReaction(mutationsList, observer) {
+			for (const mutation of mutationsList) {
+				if (mutation.type === "childList") {
+					mutation.addedNodes.forEach(node => {
+						if (node.nodeName === "DIV" && node.className === "virtual-scroll-item") {
+							let pcnodes = evaluateXPath(node, expArticle);
+							if (1 < pcnodes.length) {
+								node.setAttribute("style", "display:none;");
+							}
 						}
-					}
-				});
+					});
+				}
+			}
+		};
+		static disableRepostandReaction() {
+			if (this.observer === null) {
+				this.observer = new MutationObserver(
+					this.callbackRepostandReaction
+				);
+				this.observer.observe(
+					nodeRepostandReaction,
+					this.configRepostandReaction
+				);
 			}
 		}
-	};
-	const observer = new MutationObserver(callbackRepostandReaction);
-
-	function disableRepostandReaction() {
-		observer.observe(nodeRepostandReaction, configRepostandReaction);
 	}
 
-	if (!SettingData.flgTrend) disableTrend();
+
+	if (!SettingData.flgTrend) {
+		disableTrend();
+	}
+
 	if (!SettingData.flgRepostandReaction) {
-		disableRepostandReaction();
-		SettingData.flgRepostandReaction = true;
+		MutationObserverManager.disableRepostandReaction();
 	}
 })();
+
