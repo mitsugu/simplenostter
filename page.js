@@ -1,16 +1,20 @@
-function evaluateXPath(aNode, aExpr) {
-	var xpe = new XPathEvaluator();
-	var nsResolver = xpe.createNSResolver(aNode.ownerDocument == null ?
-		aNode.documentElement : aNode.ownerDocument.documentElement);
-	var result = xpe.evaluate(aExpr, aNode, nsResolver, 0, null);
-	var found = [];
-	var res;
-	while (res = result.iterateNext())
-		found.push(res);
-	return found;
-}
+//(function() {
+	const expRepostandReaction = '//main/div/section/div/div[1]';
+	var nodesRepostandReaction;
+	var nodeRepostandReaction;
 
-(function() {
+	function evaluateXPath(aNode, aExpr) {
+		var xpe = new XPathEvaluator();
+		var nsResolver = xpe.createNSResolver(aNode.ownerDocument == null ?
+			aNode.documentElement : aNode.ownerDocument.documentElement);
+		var result = xpe.evaluate(aExpr, aNode, nsResolver, 0, null);
+		var found = [];
+		var res;
+		while (res = result.iterateNext())
+			found.push(res);
+		return found;
+	}
+
 	var SettingData = {
 		strRegexp: "",
 		flgTrend: false,
@@ -31,16 +35,6 @@ function evaluateXPath(aNode, aExpr) {
 		`;
 		const elmHead = document.getElementsByTagName('head')[0];
 		elmHead.appendChild(styleElement);
-	}
-
-	const expRepostandReaction = '//main/div/section/div/div[1]';
-	var nodesRepostandReaction = evaluateXPath(document, expRepostandReaction)
-	var nodeRepostandReaction;
-	if (nodesRepostandReaction.length !== 1) {
-		console.error("[addon simple nostter] Too many observed node")
-		return;
-	} else {
-		nodeRepostandReaction = nodesRepostandReaction[0];
 	}
 
 	const expArticle = './div/article';
@@ -77,13 +71,34 @@ function evaluateXPath(aNode, aExpr) {
 		}
 	}
 
-
-	if (!SettingData.flgTrend) {
-		disableTrend();
+	function buildingObservedTarget() {
+		nodesRepostandReaction = evaluateXPath(document, expRepostandReaction)
+		if (nodesRepostandReaction.length !== 1) {
+			return false;
+		} else {
+			nodeRepostandReaction = nodesRepostandReaction[0];
+		}
+		return true;
 	}
 
-	if (!SettingData.flgRepostandReaction) {
-		MutationObserverManager.disableRepostandReaction();
+	function init() {
+		console.log("[addon simple nostter] run init")
+		if (!buildingObservedTarget()) {
+			console.error("[addon simple nostter] Too many observed node")
+			return;
+		}
+
+		SettingData.loadSettingData();
+
+		if (!SettingData.flgTrend) {
+			disableTrend();
+		}
+
+		if (!SettingData.flgRepostandReaction) {
+			MutationObserverManager.disableRepostandReaction();
+		}
 	}
-})();
+	window.addEventListener("load", init, false);
+	init();
+//})();
 
