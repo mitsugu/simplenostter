@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Simple Nostter",
-	"version": "0.0.0.3",
+	"version": "1.0.0",
 	"description": "A simplified display of nostter's Home Timeline.",
 	"author": "mitsugu oyama (online nick name OrzBruford)",
 	"developer": {
