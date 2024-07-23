@@ -22,16 +22,17 @@
 		"128": "icons/128.png",
 		"192": "icons/192.png"
 	},
-	"background": {
-		"scripts": ["background.js"]
-	},
-	"content_scripts": [{
-		"matches": ["https://nostter.app/home"],
-		"js": ["page.js"]
-	}],
+	"content_scripts": [
+    	{
+    	  "matches": ["https://nostter.app/"],
+    	  "js": ["home.js"]
+    	},
+    	{
+    	  "matches": ["https://nostter.app/home"],
+    	  "js": ["home.js"]
+    	}
+	],
 	"permissions": [
-		"webNavigation",
-		"tabs",
-		"activeTab"
+		"tabs"
 	]
 }

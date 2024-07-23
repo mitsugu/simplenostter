@@ -1,13 +1,15 @@
 (() => {
-	//browser.webNavigation.onCompleted.addListener((details) => {
-	browser.webNavigation.onBeforeNavigate.addListener((details) => {
-		console.log("onCompleted");
-		browser.scripting.executeScript({
-			target: {tabId: details.tabId},
-			files: ["content.js"]
-		});
-	},
-	{
-		url: [{"urlEquals": "https://nostter.app/home"}]
+	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+console.log("receive message");
+		if (message.type === 'customEvent') {
+			chrome.tabs.query({
+				url: "https://nostter.app/home"
+			}, function(tabs) {
+				tabs.forEach(tab => {
+					chrome.tabs.sendMessage(tab.id, message);
+					return;
+				});
+			});
+		}
 	});
 })();

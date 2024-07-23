@@ -1,4 +1,6 @@
-//(function() {
+(function() {
+	var flgInit = false;
+	console.log("[addon simple nostter] Start")
 	const expRepostandReaction = '//main/div/section/div/div[1]';
 	var nodesRepostandReaction;
 	var nodeRepostandReaction;
@@ -73,7 +75,7 @@
 
 	function buildingObservedTarget() {
 		nodesRepostandReaction = evaluateXPath(document, expRepostandReaction)
-		if (nodesRepostandReaction.length !== 1) {
+		if (nodesRepostandReaction.length < 1) {
 			return false;
 		} else {
 			nodeRepostandReaction = nodesRepostandReaction[0];
@@ -84,8 +86,8 @@
 	function init() {
 		console.log("[addon simple nostter] run init")
 		if (!buildingObservedTarget()) {
-			console.error("[addon simple nostter] Too many observed node")
-			return;
+			console.error("[addon simple nostter] Nothing observed nodes")
+			return false;
 		}
 
 		SettingData.loadSettingData();
@@ -97,8 +99,36 @@
 		if (!SettingData.flgRepostandReaction) {
 			MutationObserverManager.disableRepostandReaction();
 		}
+		return true;
 	}
-	window.addEventListener("load", init, false);
-	init();
-//})();
+	function repeatUntilTrue(callback) {
+	    function check() {
+	        if (!callback()) {
+	            setTimeout(check, 1000);
+	        } else {
+				return;
+	        }
+	    }
+	    check();
+	}
 
+	if (!flgInit) {
+console.log("[addon simple nostter] flgInit : ", flgInit)
+		repeatUntilTrue(init);
+		flgInit = true;
+	}
+
+	/*
+	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+console.log("[addon simple nostter] recieve message : ", message.type)
+		if (message.type === 'customEvent') {
+			console.log(
+				"[addon simple nostter] Received custom event : ",
+				message.data.someData
+			);
+			init();
+			flgInit = true;
+		}
+	});
+	*/
+})();
