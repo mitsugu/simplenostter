@@ -21,10 +21,34 @@
 		strRegexp: "",
 		flgTrend: false,
 		flgRepostandReaction: false,
-		loadSettingData: function() {
-			strRegexp = "";
-			flgTrend = false;
-			flgRepostandReaction = false;
+		loadTrendSettingData: function() {
+			return new Promise((resolve, reject) => {
+				strRegexp = "";
+				browser.storage.sync.get("trend").then(
+					(item) => {
+						SettingData.flgTrend = item.trend ? false : true;
+						resolve("get trend status");
+					},
+					(error) => {
+						SettingData.flgTrend = false;
+						reject("cannot get trend status");
+					}
+				);
+			});
+		},
+		loadKind67SettingData: function() {
+			return new Promise((resolve, reject) => {
+				browser.storage.sync.get("kind67").then(
+					(item) => {
+						SettingData.flgRepostandReaction = item.kind67 ? false : true;
+						resolve("get kind67 status");
+					},
+					(error) => {
+						SettingData.flgRepostandReaction = false;
+						reject("cannot get kind67 status");
+					}
+				);
+			});
 		}
 	}
 
@@ -90,17 +114,35 @@
 			return false;
 		}
 
-		SettingData.loadSettingData();
+		SettingData.loadTrendSettingData()
+			.then(result => {
+				SettingData.loadKind67SettingData()
+					.then(result => {
+						if (!SettingData.flgTrend) {
+							disableTrend();
+						}
 
-		if (!SettingData.flgTrend) {
-			disableTrend();
-		}
+						if (!SettingData.flgRepostandReaction) {
+							MutationObserverManager.disableRepostandReaction();
+						}
+					})
+					.catch(error => {
+						console.error(
+							"[addon simple nostter] cannot read kind67 status",
+							error
+						)
+					})
+			})
+			.catch(error => {
+				console.error(
+					"[addon simple nostter] cannot read trend status",
+					error
+				)
+			});
 
-		if (!SettingData.flgRepostandReaction) {
-			MutationObserverManager.disableRepostandReaction();
-		}
 		return true;
 	}
+
 	function repeatUntilTrue(callback) {
 	    function check() {
 	        if (!callback()) {
@@ -113,22 +155,7 @@
 	}
 
 	if (!flgInit) {
-console.log("[addon simple nostter] flgInit : ", flgInit)
 		repeatUntilTrue(init);
 		flgInit = true;
 	}
-
-	/*
-	chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-console.log("[addon simple nostter] recieve message : ", message.type)
-		if (message.type === 'customEvent') {
-			console.log(
-				"[addon simple nostter] Received custom event : ",
-				message.data.someData
-			);
-			init();
-			flgInit = true;
-		}
-	});
-	*/
 })();

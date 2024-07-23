@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Simple Nostter",
-	"version": "0.0.0.2",
+	"version": "0.0.0.3",
 	"description": "A simplified display of nostter's Home Timeline.",
 	"author": "mitsugu oyama (online nick name OrzBruford)",
 	"developer": {
@@ -24,15 +24,15 @@
 	},
 	"content_scripts": [
     	{
-    	  "matches": ["https://nostter.app/"],
-    	  "js": ["home.js"]
-    	},
-    	{
-    	  "matches": ["https://nostter.app/home"],
+    	  "matches": ["https://nostter.app/","https://nostter.app/home"],
     	  "js": ["home.js"]
     	}
 	],
+	"options_ui": {
+		"page": "resource/options.html"
+	},
 	"permissions": [
-		"tabs"
+		"tabs",
+		"storage"
 	]
 }
